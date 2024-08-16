@@ -10,8 +10,10 @@ env:
   # please change to your own config.
   GARMIN_GLOBAL_USER: ${{ secrets.GARMIN_GLOBAL_USER }}
   GARMIN_GLOBAL_PASSWORD: ${{ secrets.GARMIN_GLOBAL_PASSWORD }}
+  GARMIN_GLOBAL_TOKEN_STORE: ${{ secrets.GARMIN_GLOBAL_TOKEN_STORE }}
   GARMIN_CN_USER: ${{ secrets.GARMIN_CN_USER }}
   GARMIN_CN_PASSWORD: ${{ secrets.GARMIN_CN_PASSWORD }}
+  GARMIN_CN_TOKEN_STORE: ${{ secrets.GARMIN_CN_TOKEN_STORE }}
   GARMIN_SYNC_NUM: ${{ secrets.GARMIN_SYNC_NUM }}
 
 jobs:
