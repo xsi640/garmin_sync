@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import zipfile
+import requests
 
 from garminconnect import (
     Garmin,
@@ -23,6 +24,7 @@ if os.environ.get('GARMIN_SYNC_NUM') is not None:
 else:
     GARMIN_SYNC_NUM = 10
 GARMIN_ACTIVITY_DOWNLOAD_PATH = "activities"
+PUSH_PLUS_TOKEN = os.environ.get('PUSH_PLUS_TOKEN')
 
 if GARMIN_GLOBAL_USER is None:
     raise Exception('GARMIN_GLOBAL_USER is None')
@@ -61,6 +63,17 @@ def write_to_file(file_path, contents):
         logger.info(f"Error writing to file: {e}")
 
 
+def send_push_plus(msg):
+    if PUSH_PLUS_TOKEN is not None:
+        url = 'http://www.pushplus.plus/send'
+        data = {
+            "token": PUSH_PLUS_TOKEN,
+            "title": "Garmin账号同步",
+            "content": msg
+        }
+        requests.post(url, data=data)
+
+
 def login(username, password, is_cn):
     try:
         garmin = Garmin(email=username, password=password, is_cn=is_cn)
@@ -88,7 +101,8 @@ garmin_cn = None
 if GARMIN_GLOBAL_TOKEN_STORE is not None:
     logger.info("国际账号，验证缓存中的token。")
     garmin_global = check_token(GARMIN_GLOBAL_TOKEN_STORE)
-
+if garmin_global is None:
+    send_push_plus('国际账号缓存token过期，请更新。')
 if garmin_global is None:
     try:
         logger.info("国际账号，验证本地文件中的token。")
@@ -96,7 +110,6 @@ if garmin_global is None:
     except Exception as e:
         logger.info(f"Error checking global token: {e}")
         garmin_global = None
-
 if garmin_global is None:
     logger.info("国际账号，没有缓存的token，先进行登录。")
     garmin_global = login(GARMIN_GLOBAL_USER, GARMIN_GLOBAL_PASSWORD, False)
@@ -108,6 +121,8 @@ if garmin_global is None:
 if GARMIN_CN_TOKEN_STORE is not None:
     logger.info("国内账号，验证缓存中的token。")
     garmin_cn = check_token(GARMIN_CN_TOKEN_STORE)
+if garmin_cn is None:
+    send_push_plus('国内账号缓存token过期，请更新。')
 if garmin_cn is None:
     try:
         logger.info("国内账号，验证本地文件中的token。")

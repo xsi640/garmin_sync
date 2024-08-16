@@ -15,6 +15,7 @@ env:
   GARMIN_CN_PASSWORD: ${{ secrets.GARMIN_CN_PASSWORD }}
   GARMIN_CN_TOKEN_STORE: ${{ secrets.GARMIN_CN_TOKEN_STORE }}
   GARMIN_SYNC_NUM: ${{ secrets.GARMIN_SYNC_NUM }}
+  PUSH_PLUS_TOKEN: ${{ secrets.PUSH_PLUS_TOKEN }}
 
 jobs:
   build:
