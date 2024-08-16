@@ -1,10 +1,12 @@
-import logging, os, datetime, zipfile, sys
+import datetime
+import logging
+import os
+import sys
+import zipfile
 
 from garminconnect import (
     Garmin,
     GarminConnectAuthenticationError,
-    GarminConnectConnectionError,
-    GarminConnectTooManyRequestsError,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -70,12 +72,13 @@ def login(username, password, is_cn):
         raise Exception(f"Error logging in: {e}")
 
 
-def check_token(token, is_cn):
+def check_token(token):
     try:
         garmin = Garmin()
         garmin.login(token)
         return garmin
     except Exception as e:
+        logger.info(f"Error checking token: {e}")
         return None
 
 
@@ -83,23 +86,16 @@ garmin_global = None
 garmin_cn = None
 
 if GARMIN_GLOBAL_TOKEN_STORE is not None:
-    garmin_global = check_token(GARMIN_GLOBAL_TOKEN_STORE, False)
+    logger.info("国际账号，验证缓存中的token。")
+    garmin_global = check_token(GARMIN_GLOBAL_TOKEN_STORE)
 
 if garmin_global is None:
     try:
-        garmin_global = check_token(read_file_contents(GARMIN_GLOBAL_TOKEN_FILE), False)
+        logger.info("国际账号，验证本地文件中的token。")
+        garmin_global = check_token(read_file_contents(GARMIN_GLOBAL_TOKEN_FILE))
     except Exception as e:
         logger.info(f"Error checking global token: {e}")
         garmin_global = None
-
-if GARMIN_CN_TOKEN_STORE is not None:
-    garmin_cn = check_token(GARMIN_CN_TOKEN_STORE, True)
-if garmin_cn is None:
-    try:
-        garmin_cn = check_token(read_file_contents(GARMIN_CN_TOKEN_FILE), True)
-    except Exception as e:
-        logger.info(f"Error checking global token: {e}")
-        garmin_cn = None
 
 if garmin_global is None:
     logger.info("国际账号，没有缓存的token，先进行登录。")
@@ -108,6 +104,17 @@ if garmin_global is None:
     GARMIN_GLOBAL_TOKEN = garmin_global.garth.dumps()
     write_to_file(GARMIN_GLOBAL_TOKEN_FILE, GARMIN_GLOBAL_TOKEN)
     logger.info("国际账号，保存token到本地。")
+
+if GARMIN_CN_TOKEN_STORE is not None:
+    logger.info("国内账号，验证缓存中的token。")
+    garmin_cn = check_token(GARMIN_CN_TOKEN_STORE)
+if garmin_cn is None:
+    try:
+        logger.info("国内账号，验证本地文件中的token。")
+        garmin_cn = check_token(read_file_contents(GARMIN_CN_TOKEN_FILE))
+    except Exception as e:
+        logger.info(f"Error checking global token: {e}")
+        garmin_cn = None
 
 if garmin_cn is None:
     logger.info("国内账号，没有缓存的token，先进行登录。")
