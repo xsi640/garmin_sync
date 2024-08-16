@@ -202,6 +202,7 @@ if last_activity_start_time_cn == last_activity_start_time_global:
 else:
     start = 0
     limit = GARMIN_SYNC_NUM
+    sync_activity_count = 0
     while True:
         activities_global = garmin_global.get_activities(start, limit)
         logger.info(f"下载国际账号的活动。start:{start}, limit:{limit}")
@@ -217,8 +218,10 @@ else:
                 sys.exit(0)
             else:
                 sync_activity(activity_id)
+                sync_activity_count += 1
 
         if len(activities_global) < limit:
             logger.info("没有更多活动。结束。")
             break
         start += limit
+    send_push_plus(f"共同步 {sync_activity_count} 个活动。")
