@@ -12,9 +12,14 @@ logger = logging.getLogger(__name__)
 
 GARMIN_GLOBAL_USER = os.environ.get('GARMIN_GLOBAL_USER')
 GARMIN_GLOBAL_PASSWORD = os.environ.get('GARMIN_GLOBAL_PASSWORD')
+GARMIN_GLOBAL_TOKEN_STORE = os.environ.get('GARMIN_GLOBAL_TOKEN_STORE')
 GARMIN_CN_USER = os.environ.get('GARMIN_CN_USER')
 GARMIN_CN_PASSWORD = os.environ.get('GARMIN_CN_PASSWORD')
-GARMIN_SYNC_NUM = int(os.environ.get('GARMIN_SYNC_NUM'))
+GARMIN_CN_TOKEN_STORE = os.environ.get('GARMIN_CN_TOKEN_STORE')
+if os.environ.get('GARMIN_SYNC_NUM') is not None:
+    GARMIN_SYNC_NUM = int(os.environ.get('GARMIN_SYNC_NUM'))
+else:
+    GARMIN_SYNC_NUM = 10
 GARMIN_ACTIVITY_DOWNLOAD_PATH = "activities"
 
 if GARMIN_GLOBAL_USER is None:
@@ -65,52 +70,50 @@ def login(username, password, is_cn):
         raise Exception(f"Error logging in: {e}")
 
 
-GARMIN_GLOBAL_TOKEN = read_file_contents(GARMIN_GLOBAL_TOKEN_FILE)
-GARMIN_CN_TOKEN = read_file_contents(GARMIN_CN_TOKEN_FILE)
+def check_token(token, is_cn):
+    try:
+        garmin = Garmin()
+        garmin.login(token)
+        return garmin
+    except Exception as e:
+        return None
 
-if GARMIN_GLOBAL_TOKEN is None:
+
+garmin_global = None
+garmin_cn = None
+
+if GARMIN_GLOBAL_TOKEN_STORE is not None:
+    garmin_global = check_token(GARMIN_GLOBAL_TOKEN_STORE, False)
+    if garmin_global is None:
+        try:
+            garmin_global = check_token(read_file_contents(GARMIN_GLOBAL_TOKEN_FILE), False)
+        except Exception as e:
+            logger.info(f"Error checking global token: {e}")
+            garmin_global = None
+if GARMIN_CN_TOKEN_STORE is not None:
+    garmin_cn = check_token(GARMIN_CN_TOKEN_STORE, True)
+    if garmin_cn is None:
+        try:
+            garmin_cn = check_token(read_file_contents(GARMIN_CN_TOKEN_FILE), True)
+        except Exception as e:
+            logger.info(f"Error checking global token: {e}")
+            garmin_cn = None
+
+if garmin_global is None:
     logger.info("国际账号，没有缓存的token，先进行登录。")
     garmin_global = login(GARMIN_GLOBAL_USER, GARMIN_GLOBAL_PASSWORD, False)
     logger.info("国际账号，登录成功。")
     GARMIN_GLOBAL_TOKEN = garmin_global.garth.dumps()
     write_to_file(GARMIN_GLOBAL_TOKEN_FILE, GARMIN_GLOBAL_TOKEN)
     logger.info("国际账号，保存token到本地。")
-else:
-    logger.info("国际账号，有缓存的token，验证token。")
-    try:
-        garmin_global = Garmin()
-        garmin_global.login(GARMIN_GLOBAL_TOKEN)
-        logger.info("国际账号，验证token成功。")
-    except Exception as e:
-        logger.info(f"Error logging in: {e}")
-        logger.info("国际账号，验证token失败，重新登录。")
-        garmin_global = login(GARMIN_GLOBAL_USER, GARMIN_GLOBAL_PASSWORD, False)
-        logger.info("国际账号，登录成功。")
-        GARMIN_GLOBAL_TOKEN = garmin_global.garth.dumps()
-        write_to_file(GARMIN_GLOBAL_TOKEN_FILE, GARMIN_GLOBAL_TOKEN)
-        logger.info("国际账号，保存token到本地。")
 
-if GARMIN_CN_TOKEN is None:
+if garmin_cn is None:
     logger.info("国内账号，没有缓存的token，先进行登录。")
     garmin_cn = login(GARMIN_CN_USER, GARMIN_CN_PASSWORD, True)
     logger.info("国内账号，登录成功。")
     GARMIN_CN_TOKEN = garmin_cn.garth.dumps()
     write_to_file(GARMIN_CN_TOKEN_FILE, GARMIN_CN_TOKEN)
     logger.info("国内账号，保存token到本地。")
-else:
-    logger.info("国内账号，有缓存的token，验证token。")
-    try:
-        garmin_cn = Garmin()
-        garmin_cn.login(GARMIN_CN_TOKEN)
-        logger.info("国内账号，验证token成功。")
-    except Exception as e:
-        logger.info(f"Error logging in: {e}")
-        logger.info("国内账号，验证token失败，重新登录。")
-        garmin_cn = login(GARMIN_CN_USER, GARMIN_CN_PASSWORD, True)
-        logger.info("国内账号，登录成功。")
-        GARMIN_CN_TOKEN = garmin_cn.garth.dumps()
-        write_to_file(GARMIN_CN_TOKEN_FILE, GARMIN_CN_TOKEN)
-        logger.info("国内账号，保存token到本地。")
 
 activities_cn_cache = []
 query_for_date = []
