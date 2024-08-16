@@ -84,20 +84,22 @@ garmin_cn = None
 
 if GARMIN_GLOBAL_TOKEN_STORE is not None:
     garmin_global = check_token(GARMIN_GLOBAL_TOKEN_STORE, False)
-    if garmin_global is None:
-        try:
-            garmin_global = check_token(read_file_contents(GARMIN_GLOBAL_TOKEN_FILE), False)
-        except Exception as e:
-            logger.info(f"Error checking global token: {e}")
-            garmin_global = None
+
+if garmin_global is None:
+    try:
+        garmin_global = check_token(read_file_contents(GARMIN_GLOBAL_TOKEN_FILE), False)
+    except Exception as e:
+        logger.info(f"Error checking global token: {e}")
+        garmin_global = None
+
 if GARMIN_CN_TOKEN_STORE is not None:
     garmin_cn = check_token(GARMIN_CN_TOKEN_STORE, True)
-    if garmin_cn is None:
-        try:
-            garmin_cn = check_token(read_file_contents(GARMIN_CN_TOKEN_FILE), True)
-        except Exception as e:
-            logger.info(f"Error checking global token: {e}")
-            garmin_cn = None
+if garmin_cn is None:
+    try:
+        garmin_cn = check_token(read_file_contents(GARMIN_CN_TOKEN_FILE), True)
+    except Exception as e:
+        logger.info(f"Error checking global token: {e}")
+        garmin_cn = None
 
 if garmin_global is None:
     logger.info("国际账号，没有缓存的token，先进行登录。")
