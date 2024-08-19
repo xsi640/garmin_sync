@@ -37,4 +37,4 @@ jobs:
           pip install -r requirements.txt
       - name: Run Global to CN
         run: |
-          python garmin_src.py
+          python garmin_sync.py
