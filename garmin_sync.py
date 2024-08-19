@@ -210,7 +210,7 @@ def sync_activity(src_activity_id):
 profile_src = garmin_src.get_user_profile()
 logger.info(f"源账号信息。{profile_src}")
 profile_dst = garmin_dst.get_user_profile()
-logger.info(f"目标账号信息。{profile_src}")
+logger.info(f"目标账号信息。{profile_dst}")
 activities_src = garmin_src.get_activities(0, 1)
 activities_dst = garmin_dst.get_activities(0, 1)
 logger.info(activities_src[0])
