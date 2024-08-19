@@ -35,6 +35,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run Global to CN
+      - name: Run Garmin Sync
         run: |
           python garmin_sync.py
