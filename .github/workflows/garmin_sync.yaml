@@ -8,12 +8,14 @@ on:
 
 env:
   # please change to your own config.
-  GARMIN_GLOBAL_USER: ${{ secrets.GARMIN_GLOBAL_USER }}
-  GARMIN_GLOBAL_PASSWORD: ${{ secrets.GARMIN_GLOBAL_PASSWORD }}
-  GARMIN_GLOBAL_TOKEN_STORE: ${{ secrets.GARMIN_GLOBAL_TOKEN_STORE }}
-  GARMIN_CN_USER: ${{ secrets.GARMIN_CN_USER }}
-  GARMIN_CN_PASSWORD: ${{ secrets.GARMIN_CN_PASSWORD }}
-  GARMIN_CN_TOKEN_STORE: ${{ secrets.GARMIN_CN_TOKEN_STORE }}
+  GARMIN_SRC_USER: ${{ secrets.GARMIN_SRC_USER }}
+  GARMIN_SRC_PASSWORD: ${{ secrets.GARMIN_SRC_PASSWORD }}
+  GARMIN_SRC_IS_CN: ${{ secrets.GARMIN_SRC_IS_CN }}
+  GARMIN_SRC_TOKEN_STORE: ${{ secrets.GARMIN_SRC_TOKEN_STORE }}
+  GARMIN_DST_USER: ${{ secrets.GARMIN_DST_USER }}
+  GARMIN_DST_PASSWORD: ${{ secrets.GARMIN_DST_PASSWORD }}
+  GARMIN_DST_IS_CN: ${{ secrets.GARMIN_DST_IS_CN }}
+  GARMIN_DST_TOKEN_STORE: ${{ secrets.GARMIN_DST_TOKEN_STORE }}
   GARMIN_SYNC_NUM: ${{ secrets.GARMIN_SYNC_NUM }}
   PUSH_PLUS_TOKEN: ${{ secrets.PUSH_PLUS_TOKEN }}
 
@@ -35,4 +37,4 @@ jobs:
           pip install -r requirements.txt
       - name: Run Global to CN
         run: |
-          python global_to_cn.py
+          python garmin_src.py
