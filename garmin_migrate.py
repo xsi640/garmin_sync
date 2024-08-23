@@ -51,7 +51,7 @@ profile_dst = garmin_dst.get_user_profile()
 logger.info(f"目标账号信息。{profile_dst}")
 
 sync = GSync(garmin_src, garmin_dst, GARMIN_SYNC_NUM)
-sync.sync()
+sync.migrate()
 
 sync = GSync(garmin_dst, garmin_src, GARMIN_SYNC_NUM)
-sync.sync()
+sync.migrate()

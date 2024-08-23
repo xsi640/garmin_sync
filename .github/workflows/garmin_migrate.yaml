@@ -1,0 +1,37 @@
+name: Migrate Garmin
+
+on:
+  workflow_dispatch:
+
+env:
+  # please change to your own config.
+  GARMIN_SRC_USER: ${{ secrets.GARMIN_SRC_USER }}
+  GARMIN_SRC_PASSWORD: ${{ secrets.GARMIN_SRC_PASSWORD }}
+  GARMIN_SRC_IS_CN: ${{ secrets.GARMIN_SRC_IS_CN }}
+  GARMIN_SRC_TOKEN_STORE: ${{ secrets.GARMIN_SRC_TOKEN_STORE }}
+  GARMIN_DST_USER: ${{ secrets.GARMIN_DST_USER }}
+  GARMIN_DST_PASSWORD: ${{ secrets.GARMIN_DST_PASSWORD }}
+  GARMIN_DST_IS_CN: ${{ secrets.GARMIN_DST_IS_CN }}
+  GARMIN_DST_TOKEN_STORE: ${{ secrets.GARMIN_DST_TOKEN_STORE }}
+  GARMIN_SYNC_NUM: ${{ secrets.GARMIN_SYNC_NUM }}
+  PUSH_PLUS_TOKEN: ${{ secrets.PUSH_PLUS_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Sync Garmin
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run Garmin Migrate
+        run: |
+          python garmin_migrate.py

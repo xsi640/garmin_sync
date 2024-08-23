@@ -2,29 +2,16 @@ import logging
 import datetime
 import os
 import zipfile
+from send_notify import send_push
 
-import requests
 from garminconnect import (
     Garmin,
-    GarminConnectAuthenticationError,
 )
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 GARMIN_ACTIVITY_DOWNLOAD_PATH = "activities"
-PUSH_PLUS_TOKEN = os.environ.get('PUSH_PLUS_TOKEN')
-
-
-def send_push_plus(msg):
-    if PUSH_PLUS_TOKEN is not None:
-        url = 'http://www.pushplus.plus/send'
-        data = {
-            "token": PUSH_PLUS_TOKEN,
-            "title": "Garmin账号同步",
-            "content": msg
-        }
-        requests.post(url, data=data)
 
 
 class GSync:
@@ -90,6 +77,7 @@ class GSync:
         logger.info(activities_dst[0])
         last_activity_start_time_src = activities_src[0]["startTimeLocal"]
         last_activity_start_time_dst = activities_dst[0]["startTimeLocal"]
+        logger.info(f"src_time {last_activity_start_time_src}, dst_time {last_activity_start_time_src}")
         if last_activity_start_time_src == last_activity_start_time_dst:
             logger.info("最新两个账号最新的活动时间相同，无需同步。")
         else:
@@ -98,7 +86,7 @@ class GSync:
             sync_activity_count = 0
             while True:
                 activities_src = self.garmin_src.get_activities(start, limit)
-                logger.info(f"下载国际账号的活动。start:{start}, limit:{limit}")
+                logger.info(f"下载源账号的活动。start:{start}, limit:{limit}")
                 if len(activities_src) == 0:
                     logger.info("没有更多活动。结束。")
                     break
@@ -121,4 +109,27 @@ class GSync:
                     logger.info("没有更多活动。结束。")
                     break
                 start += limit
-            send_push_plus(f"共同步 {sync_activity_count} 个活动。")
+            send_push(f"共同步 {sync_activity_count} 个活动。")
+
+    def migrate(self):
+        start = 0
+        limit = self.sync_num
+        migrate_count = 0
+        while True:
+            activities_src = self.garmin_src.get_activities(start, limit)
+            logger.info(f"下载源账号的活动。start:{start}, limit:{limit}")
+            if len(activities_src) == 0:
+                logger.info("没有更多活动。结束。")
+                break
+
+            for activity_src in activities_src:
+                activity_id = activity_src.get("activityId")
+                start_time_local = activity_src.get("startTimeLocal")
+                if not self.exists_activity(start_time_local):
+                    self.sync_activity(activity_id)
+                    migrate_count += 1
+            if len(activities_src) < limit:
+                logger.info("没有更多活动。结束。")
+                break
+            start += limit
+        send_push(f"共迁移 {migrate_count} 个活动。")
