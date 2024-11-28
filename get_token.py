@@ -16,4 +16,4 @@ def login(username, password, is_cn):
 
 
 if __name__ == '__main__':
-    login("", "", True)
+    login("xsi64@126.com", "SHAduoh@163.com", True)
