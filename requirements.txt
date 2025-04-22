@@ -1,8 +1,8 @@
 annotated-types==0.7.0
 certifi==2024.7.4
 charset-normalizer==3.3.2
-garminconnect==0.2.25
-garth==0.5.2
+garminconnect==0.2.26
+garth==0.5.3
 idna==3.7
 lxml==5.3.0
 oauthlib==3.2.2
