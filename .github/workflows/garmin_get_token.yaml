@@ -1,4 +1,4 @@
-name: Sync Garmin
+name: Get Token
 
 on:
   workflow_dispatch:
