@@ -16,6 +16,7 @@ def login(username, password, is_cn):
 
 
 if __name__ == '__main__':
+    login("xsi64@126.com", "SHAduoh@163.com", True)
     login("xsi640@hotmail.com", "SHAduoh@163.com", False)
 
 # GARMIN_DST_IS_CN = True
