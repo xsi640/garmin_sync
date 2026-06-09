@@ -2,12 +2,10 @@ from garminconnect import (
     Garmin,
     GarminConnectAuthenticationError,
 )
-from getpass import getpass
-
 
 def login(username, password, is_cn):
     try:
-        garmin = Garmin(email=username, password=getpass(password), is_cn=is_cn)
+        garmin = Garmin(email=username, password=password, is_cn=is_cn)
         garmin.login()
         print(f"token: {garmin.garth.dumps()}")
     except GarminConnectAuthenticationError as e:
